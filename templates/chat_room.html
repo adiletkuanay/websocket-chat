@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %} Chat Room: {{ chat_room.name }} {% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h3>Welcome to Chat Room: {{ chat_room.name }}</h3>
+    <div id="chat-messages" class="mt-4"></div>
+    <div class="mb-3">
+        <label for="textMessage" class="form-label">Enter your message:</label>
+        <input type="text" class="form-control" id="textMessage">
+    </div>
+    <button id="sendMessage" class="btn btn-primary">Send</button>
+</div>
+
+<script>
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/{{ chat_room.id }}/'  
+    );
+
+    chatSocket.onopen = function (e) {
+        console.log('Chat socket successfully connected.');
+    };
+
+    chatSocket.onclose = function (e) {
+        console.log('Chat socket closed unexpectedly');
+    };
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const message = data.message;
+        const username = data.username;
+        setMessage(username, message);
+    };
+
+    document.querySelector('#sendMessage').onclick = function(e) {
+        const messageInputDom = document.querySelector('#textMessage');
+        const message = messageInputDom.value;
+        chatSocket.send(JSON.stringify({
+            'username': '{{ request.user.username }}',
+            'message': message
+        }));
+        messageInputDom.value = '';
+    };
+
+    function setMessage(username, message){
+        var div = document.createElement('div');
+        div.className = 'alert alert-success alert-dismissible fade show';
+        div.setAttribute('role', 'alert');
+
+        var messageText = document.createTextNode(username + ': ' + message);
+        div.appendChild(messageText);
+
+        var closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'btn-close';
+        closeButton.setAttribute('data-bs-dismiss', 'alert');
+        closeButton.setAttribute('aria-label', 'Close');
+        div.appendChild(closeButton);
+
+        var container = document.getElementById('chat-messages');  
+        container.appendChild(div);
+    }
+</script>
+{% endblock %}

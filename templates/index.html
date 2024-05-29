@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %} Index {% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Welcome to Chat Room</h1>
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Existing Chat Rooms</h2>
+                <ul class="list-group">
+                    {% for room in chat_rooms %}
+                        <li class="list-group-item">
+                            <a href="{% url 'chat_room' room.id %}">{{ room.name }}</a>
+                            <small class="text-muted">{{ room.description }}</small>
+                            <form method="post" action="{% url 'delete_chat_room' room.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'create_chat_room' %}" class="btn btn-primary mt-3">Create New Chat Room</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+{% endblock %}
